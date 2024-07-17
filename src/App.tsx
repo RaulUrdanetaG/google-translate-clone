@@ -1,35 +1,79 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./App.css";
+import { useStore } from "./hooks/useStore";
+import { Container, Row, Col, Button, Stack } from "react-bootstrap";
+import { AUTO_LANGUAGE } from "./constants";
+import { ArrowsIcon } from "./components/Icons";
+import { LanguageSelector } from "./components/LanguageSelector";
+import TextArea from "./components/TextArea";
+import { useEffect } from "react";
+import { translate } from "./services/translate";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const {
+    fromLanguage,
+    toLanguage,
+    fromText,
+    result,
+    loading,
+    setFromLanguage,
+    setToLanguage,
+    setFromText,
+    setResult,
+    interchangeLanguages,
+  } = useStore();
 
+  useEffect(() => {
+    if (fromText === "") return;
+    translate({ fromLanguage, toLanguage, text: fromText });
+  }, [fromText]);
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Container fluid>
+      <h1>Google Translate</h1>
+
+      <Row>
+        <Col>
+          <Stack gap={2}>
+            <LanguageSelector
+              type="from"
+              value={fromLanguage}
+              onChange={setFromLanguage}
+            />
+            <TextArea
+              value={fromText}
+              onChange={setFromText}
+              type="form"
+              loading={loading}
+            />
+          </Stack>
+        </Col>
+        <Col xs="auto">
+          <Button
+            variant="link"
+            disabled={fromLanguage === AUTO_LANGUAGE}
+            onClick={interchangeLanguages}
+          >
+            <ArrowsIcon />
+          </Button>
+        </Col>
+        <Col>
+          <Stack gap={2}>
+            <LanguageSelector
+              type="to"
+              value={toLanguage}
+              onChange={setToLanguage}
+            />
+            <TextArea
+              type="to"
+              value={result}
+              onChange={setResult}
+              loading={loading}
+            />
+          </Stack>
+        </Col>
+      </Row>
+    </Container>
+  );
 }
 
-export default App
+export default App;
